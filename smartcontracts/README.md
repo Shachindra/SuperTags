@@ -18,7 +18,6 @@ Contract Address: 0x6F593616C773472ea50a4ba3124cFD6A2eB3a803
 
 Verified Link: https://testnet-zkevm.polygonscan.com/address/0x6f593616c773472ea50a4ba3124cfd6a2eb3a803#code
 
-
 ### Base Goerli Deployment: 
 
 Contract Address: 0x6F593616C773472ea50a4ba3124cFD6A2eB3a803

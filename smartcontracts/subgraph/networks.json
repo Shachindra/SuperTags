@@ -1,8 +1,8 @@
 {
-  "scroll-sepolia": {
+  "polygon-zkevm-testnet": {
     "SuperTags": {
       "address": "0x6F593616C773472ea50a4ba3124cFD6A2eB3a803",
-      "startBlock": 2534123
+      "startBlock": 3406607
     }
   }
 }
