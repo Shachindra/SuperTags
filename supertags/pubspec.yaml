@@ -62,6 +62,10 @@ flutter:
 
   assets:
     - images/supertags.png
+    - images/ETHGlobal.png
+    - images/nfc-cap1.png
+    - images/nfc-cap2.png
+    - images/nfc-restaurant.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

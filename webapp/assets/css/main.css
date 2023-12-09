@@ -41,6 +41,109 @@ blockquote, q {
 	quotes: none;
 }
 
+.wrap{
+	margin: 3rem auto 0;
+	width: 90%;
+	max-width: 48rem;
+  }
+
+.example{
+	margin-top: 1.5rem;
+  }
+  
+  .ex-1 ul{
+	width: 100%;
+	display: flex;
+	border-bottom: 1px solid #ddd;
+	border-top: 4px solid #11B8AB;
+  }
+  
+  .ex-1 ul li{
+	width: 25%;
+	text-align: center;
+	list-style: none;
+	padding: 1.5rem 0;
+	font-weight: bold;
+	color: #666;
+	cursor: pointer;
+	position: relative;
+  }
+  
+  .ex-1 ul li i{
+	color: #bbb;
+	font-size: 1.5rem;
+	padding-right: .5rem;
+	vertical-align: -2px;
+  }
+  
+  .ex-1 ul li.active:after{
+	width: 100%;
+	content: '';
+	height: 3px;
+	bottom: -1px;
+	left: 0;
+	display: block;
+	position: absolute;
+	background: #11B8AB;
+  }
+  
+  .ex-1 ul li.active{
+	color: #444;
+  }
+  
+  .ex-1 ul li.active i{
+	color: #11B8AB;
+  }
+  
+  .ex-1 ul li:hover{
+	background: #f9f9f9;
+  }
+
+  .ex-5{
+	background: #f1f1f1;
+	padding: 1.5rem;
+	display: flex;
+  }
+  
+  .ex-5 .card{
+	background: #fff;
+	padding: 1rem;
+	border-radius: 5px;
+	width: 100%;
+	max-width: 50%;
+	box-shadow: 0 2px 3px 0 rgba(0,0,0,.075);
+  }
+  
+  .ex-5 .c-1,
+  .ex-5 .c-2{
+	margin-right: 1.5rem;
+  }
+  
+  .ex-5 p{
+	margin-bottom: 0;
+  }
+  
+  .ex-5 p.revenue{
+	font-size: 1.5rem;
+  }
+  
+  .ex-5 p.label{
+	color: #888;
+	font-size: .875rem;
+  }
+  
+  .ex-5 .line{
+	width: 100%;
+	max-width: 5rem;
+	height: 1px;
+	margin: 1rem 0 1rem;
+	background: #11B8AB;
+  }
+  
+  .ex-5 .sales{
+	font-size: -875rem;
+  }
+
 	blockquote:before, blockquote:after, q:before, q:after {
 		content: '';
 		content: none;

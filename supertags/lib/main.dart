@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:supertags/screens/dashboard.dart';
+import 'package:supertags/screens/experience.dart';
 import 'package:supertags/screens/splashscreen.dart';
+import 'package:supertags/screens/wallet.dart';
 
 var routes = <String, WidgetBuilder>{
   "/splash": (BuildContext context) => SplashScreen(),
-  "/dashBoard": (BuildContext context) => DashboardScreen(),
+  "/wallet": (BuildContext context) => SetupWalletScreen(),
+  "/dashboard": (BuildContext context) => DashboardScreen(),
+  "/experience": (BuildContext context) => ExperienceScreen(),
 };
 
 void main() {

@@ -30,7 +30,7 @@ class _NDEFUriRecordSetting extends State<NDEFUriRecordSetting> {
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(
-              title: Text('Set Experience ID'),
+              title: Text('Update NFT ID'),
             ),
             body: Center(
                 child: Padding(
@@ -54,7 +54,7 @@ class _NDEFUriRecordSetting extends State<NDEFUriRecordSetting> {
                               },
                             ),
                             TextFormField(
-                              decoration: InputDecoration(labelText: 'content'),
+                              decoration: InputDecoration(labelText: 'Enter NFT ID'),
                               controller: _contentController,
                             ),
                             ElevatedButton(
@@ -65,8 +65,8 @@ class _NDEFUriRecordSetting extends State<NDEFUriRecordSetting> {
                                   Navigator.pop(
                                       context,
                                       ndef.UriRecord(
-                                        prefix: _dropButtonValue,
-                                        content: (_contentController.text),
+                                        prefix: "https://",
+                                        content: "shachindra.github.io/SuperTags/experience?tagNFTId=${_contentController.text}",
                                       ));
                                 }
                               },
