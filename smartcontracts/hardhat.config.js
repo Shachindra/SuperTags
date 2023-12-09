@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-require("@nomicfoundation/hardhat-toolbox")
+require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-truffle5");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
@@ -17,9 +17,12 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 // API_KEY & PRIVATE_KEY
 const SCROLLSEPOLIA_RPC_URL = process.env.SCROLLSEPOLIA_RPC_URL || "https://sepolia-rpc.scroll.io"
+const SCROLL_SCAN_API = process.env.SCROLL_SCAN_API || "ScrollScan API key"
 const ZKEVMTESTNET_RPC_URL = process.env.ZKEVMTESTNET_RPC_URL || "https://rpc.public.zkevm-test.net"
+const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "PolygonScan API key"
+const BASEGOERLI_RPC_URL = process.env.BASEGOERLI_RPC_URL || "https://goerli.base.org"
+const BASESCAN_API_KEY = process.env.BASESCAN_API_KEY || "BaseScan API key"
 const MNEMONIC = process.env.MNEMONIC || "mnemonic"
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "PolygonScan API key"
 // const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Etherscan API key"
 
 /**
@@ -27,7 +30,7 @@ const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "PolygonScan API key"
  */
 module.exports = {
   solidity: {
-    version: "0.8.22",
+    version: "0.8.20",
     settings: {
       optimizer: {
         enabled: true,
@@ -40,13 +43,19 @@ module.exports = {
     hardhat: {
       initialBaseFeePerGas: 0, // workaround from https://github.com/sc-forks/solidity-coverage/issues/652#issuecomment-896330136 . Remove when that issue is closed.
     },
+    basegoerli: {
+      url: BASEGOERLI_RPC_URL,
+      accounts: {
+        mnemonic: MNEMONIC,
+      },
+    },
     scrollsepolia: {
       url: SCROLLSEPOLIA_RPC_URL,
       accounts: {
         mnemonic: MNEMONIC,
       },
     },
-    ZKEVMTESTNET: {
+    zkevmtest: {
       url: ZKEVMTESTNET_RPC_URL,
       //accounts: [`0x${ETH_PRIVATE_KEY}`],
       accounts: {
@@ -59,7 +68,7 @@ module.exports = {
     currency: "USD",
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: POLYGONSCAN_API_KEY,
   },
   paths: {
     sources: "./contracts",

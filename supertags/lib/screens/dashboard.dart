@@ -147,7 +147,7 @@ class _DashboardState extends State<DashboardScreen>
                     if (!kIsWeb) sleep(const Duration(seconds: 1));
                     await FlutterNfcKit.finish(iosAlertMessage: "Finished!");
                   },
-                  child: const Text('Start Scanning'),
+                  child: const Text('Scan SuperTag'),
                 ),
                 const SizedBox(height: 10),
                 Padding(
