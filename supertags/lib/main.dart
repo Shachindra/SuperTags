@@ -1,125 +1,310 @@
+import 'dart:async';
+import 'dart:io' show Platform, sleep;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
+import 'package:logging/logging.dart';
+import 'package:ndef/ndef.dart' as ndef;
+import 'package:ndef/utilities.dart';
+
+import './ndef_record/raw_record_setting.dart';
+import './ndef_record/text_record_setting.dart';
+import './ndef_record/uri_record_setting.dart';
 
 void main() {
-  runApp(const MyApp());
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+  runApp(MaterialApp(theme: ThemeData(useMaterial3: true), home: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SuperTags',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'SuperTags - Gamifying the Phygital Experiences'),
-    );
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+  String _platformVersion = '';
+  NFCAvailability _availability = NFCAvailability.not_supported;
+  NFCTag? _tag;
+  String? _result, _writeResult, _mifareResult;
+  late TabController _tabController;
+  List<ndef.NDEFRecord>? _records;
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  void initState() {
+    super.initState();
+    if (!kIsWeb)
+      _platformVersion =
+      '${Platform.operatingSystem} ${Platform.operatingSystemVersion}';
+    else
+      _platformVersion = 'Web';
+    initPlatformState();
+    _tabController = new TabController(length: 2, vsync: this);
+    _records = [];
+  }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    NFCAvailability availability;
+    try {
+      availability = await FlutterNfcKit.nfcAvailability;
+    } on PlatformException {
+      availability = NFCAvailability.not_supported;
+    }
 
-  void _incrementCounter() {
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      // _platformVersion = platformVersion;
+      _availability = availability;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+            title: const Text('SuperTags'),
+            bottom: TabBar(
+              tabs: <Widget>[
+                Tab(text: 'Read'),
+                Tab(text: 'Write'),
+              ],
+              controller: _tabController,
+            )),
+        body: new TabBarView(controller: _tabController, children: <Widget>[
+          Scrollbar(
+              child: SingleChildScrollView(
+                  child: Center(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            const SizedBox(height: 20),
+                            Text('Running on: $_platformVersion\nNFC: $_availability'),
+                            const SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () async {
+                                try {
+                                  NFCTag tag = await FlutterNfcKit.poll();
+                                  setState(() {
+                                    _tag = tag;
+                                  });
+                                  await FlutterNfcKit.setIosAlertMessage(
+                                      "Working on it...");
+                                  _mifareResult = null;
+                                  if (tag.standard == "ISO 14443-4 (Type B)") {
+                                    String result1 =
+                                    await FlutterNfcKit.transceive("00B0950000");
+                                    String result2 = await FlutterNfcKit.transceive(
+                                        "00A4040009A00000000386980701");
+                                    setState(() {
+                                      _result = '1: $result1\n2: $result2\n';
+                                    });
+                                  } else if (tag.type == NFCTagType.iso18092) {
+                                    String result1 =
+                                    await FlutterNfcKit.transceive("060080080100");
+                                    setState(() {
+                                      _result = '1: $result1\n';
+                                    });
+                                  } else if (tag.ndefAvailable ?? false) {
+                                    var ndefRecords = await FlutterNfcKit.readNDEFRecords();
+                                    var ndefString = '';
+                                    for (int i = 0; i < ndefRecords.length; i++) {
+                                      ndefString += '${i + 1}: ${ndefRecords[i]}\n';
+                                    }
+                                    setState(() {
+                                      _result = ndefString;
+                                    });
+                                  } else if (tag.type == NFCTagType.webusb) {
+                                    var r = await FlutterNfcKit.transceive(
+                                        "00A4040006D27600012401");
+                                    print(r);
+                                  }
+                                } catch (e) {
+                                  setState(() {
+                                    _result = 'error: $e';
+                                  });
+                                }
+
+                                // Pretend that we are working
+                                if (!kIsWeb) sleep(new Duration(seconds: 1));
+                                await FlutterNfcKit.finish(iosAlertMessage: "Finished!");
+                              },
+                              child: Text('Start Scanning'),
+                            ),
+                            const SizedBox(height: 10),
+                            Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: _tag != null
+                                    ? Text(
+                                    'ID: ${_tag!.id}\nStandard: ${_tag!.standard}\nType: ${_tag!.type}\nATQA: ${_tag!.atqa}\nSAK: ${_tag!.sak}\nHistorical Bytes: ${_tag!.historicalBytes}\nProtocol Info: ${_tag!.protocolInfo}\nApplication Data: ${_tag!.applicationData}\nHigher Layer Response: ${_tag!.hiLayerResponse}\nManufacturer: ${_tag!.manufacturer}\nSystem Code: ${_tag!.systemCode}\nDSF ID: ${_tag!.dsfId}\nNDEF Available: ${_tag!.ndefAvailable}\nNDEF Type: ${_tag!.ndefType}\nNDEF Writable: ${_tag!.ndefWritable}\nNDEF Can Make Read Only: ${_tag!.ndefCanMakeReadOnly}\nNDEF Capacity: ${_tag!.ndefCapacity}\nMifare Info:${_tag!.mifareInfo} Transceive Result:\n$_result\n\nBlock Message:\n$_mifareResult')
+                                    : const Text('No tag scanned yet.')),
+                          ])))),
+          Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_records!.length != 0) {
+                            try {
+                              NFCTag tag = await FlutterNfcKit.poll();
+                              setState(() {
+                                _tag = tag;
+                              });
+                              if (tag.type == NFCTagType.mifare_ultralight ||
+                                  tag.type == NFCTagType.mifare_classic ||
+                                  tag.type == NFCTagType.iso15693) {
+                                await FlutterNfcKit.writeNDEFRecords(_records!);
+                                setState(() {
+                                  _writeResult = 'OK';
+                                });
+                              } else {
+                                setState(() {
+                                  _writeResult =
+                                  'error: NDEF not supported: ${tag.type}';
+                                });
+                              }
+                            } catch (e, stacktrace) {
+                              setState(() {
+                                _writeResult = 'error: $e';
+                              });
+                              print(stacktrace);
+                            } finally {
+                              await FlutterNfcKit.finish();
+                            }
+                          } else {
+                            setState(() {
+                              _writeResult = 'error: No record';
+                            });
+                          }
+                        },
+                        child: Text("Start Writing"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return SimpleDialog(
+                                    title: Text("Record Type"),
+                                    children: <Widget>[
+                                      SimpleDialogOption(
+                                        child: Text("Text Record"),
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          final result = await Navigator.push(
+                                              context, MaterialPageRoute(
+                                              builder: (context) {
+                                                return NDEFTextRecordSetting();
+                                              }));
+                                          if (result != null) {
+                                            if (result is ndef.TextRecord) {
+                                              setState(() {
+                                                _records!.add(result);
+                                              });
+                                            }
+                                          }
+                                        },
+                                      ),
+                                      SimpleDialogOption(
+                                        child: Text("URI Record"),
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          final result = await Navigator.push(
+                                              context, MaterialPageRoute(
+                                              builder: (context) {
+                                                return NDEFUriRecordSetting();
+                                              }));
+                                          if (result != null) {
+                                            if (result is ndef.UriRecord) {
+                                              setState(() {
+                                                _records!.add(result);
+                                              });
+                                            }
+                                          }
+                                        },
+                                      ),
+                                      SimpleDialogOption(
+                                        child: Text("Raw Record"),
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          final result = await Navigator.push(
+                                              context, MaterialPageRoute(
+                                              builder: (context) {
+                                                return NDEFRecordSetting();
+                                              }));
+                                          if (result != null) {
+                                            if (result is ndef.NDEFRecord) {
+                                              setState(() {
+                                                _records!.add(result);
+                                              });
+                                            }
+                                          }
+                                        },
+                                      ),
+                                    ]);
+                              });
+                        },
+                        child: Text("Add record"),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text('Result: $_writeResult'),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    flex: 1,
+                    child: ListView(
+                        shrinkWrap: true,
+                        children: List<Widget>.generate(
+                            _records!.length,
+                                (index) => GestureDetector(
+                              child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Text(
+                                      'id:${_records![index].idString}\ntnf:${_records![index].tnf}\ntype:${_records![index].type?.toHexString()}\npayload:${_records![index].payload?.toHexString()}\n')),
+                              onTap: () async {
+                                final result = await Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                      return NDEFRecordSetting(
+                                          record: _records![index]);
+                                    }));
+                                if (result != null) {
+                                  if (result is ndef.NDEFRecord) {
+                                    setState(() {
+                                      _records![index] = result;
+                                    });
+                                  } else if (result is String &&
+                                      result == "Delete") {
+                                    _records!.removeAt(index);
+                                  }
+                                }
+                              },
+                            ))),
+                  ),
+                ]),
+          )
+        ]),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

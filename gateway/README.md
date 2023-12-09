@@ -1,2 +1,2 @@
-# WebApp
-WebApp for Gamifying Phygital Experiences with NFTs and NFC
+# Gateway
+Gateway APIs for Gamifying Phygital Experiences with NFTs and NFC
