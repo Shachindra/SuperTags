@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.22;
 
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts/token/common/ERC2981.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "./common/interface/IERC4907.sol";
 
 /**
  * @dev {ERC721} token, including:
- *
- *  - ability for holders to burn (destroy) their tokens
- *  - a creator role that allows for token minting (creation)
- *  - a pauser role that allows to stop all token transfers
- *  - token ID and URI autogeneration
- *  - ability for holders to give for rent (4907)
- *  - royalty is present (2981)
- *  - Lazy Minting is present
  * 
  *
  * This contract uses {AccessControl} to lock permissioned functions using the
@@ -27,7 +20,7 @@ import "./common/interface/IERC4907.sol";
  * roles, as well as the default admin role, which will let it grant both creator
  * and pauser roles to other accounts.
  */
-contract SuperTags is Context, AccessControlEnumerable, ERC721Enumerable, ERC2981, IERC4907 {
+contract SuperTags is Context, AccessControlEnumerable, ERC721, ERC721Enumerable, ERC2981, IERC4907 {
     
      // Set Constants for Interface ID and Roles
     bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
@@ -82,8 +75,9 @@ contract SuperTags is Context, AccessControlEnumerable, ERC721Enumerable, ERC298
         string memory symbol,
         uint256 _nftPrice
     ) ERC721(name, symbol) {
-        // Set the name and Symbol for the NFT Contract
-        _setupRole(ST_ADMIN_ROLE, _msgSender());
+        AccessControl._setupRole(ST_ADMIN_ROLE, _msgSender());
+        AccessControl._setupRole(ST_OPERATOR_ROLE, _msgSender());
+        AccessControl._setupRole(ST_OPERATOR_ROLE, _msgSender());
 
         _setRoleAdmin(ST_ADMIN_ROLE, ST_ADMIN_ROLE);
         _setRoleAdmin(ST_CREATOR_ROLE, ST_OPERATOR_ROLE);

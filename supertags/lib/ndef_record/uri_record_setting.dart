@@ -30,7 +30,7 @@ class _NDEFUriRecordSetting extends State<NDEFUriRecordSetting> {
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(
-              title: Text('Set Record'),
+              title: Text('Set Experience ID'),
             ),
             body: Center(
                 child: Padding(
