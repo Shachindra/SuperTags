@@ -39,6 +39,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  fluttertoast: ^8.2.4
   web3dart:
   flutter_nfc_kit: ^3.4.2
 

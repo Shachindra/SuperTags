@@ -12,7 +12,7 @@ import 'package:logging/logging.dart';
 import 'package:ndef/ndef.dart' as ndef;
 import 'package:ndef/utilities.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:fluttertoast/fluttertoast.dart';
 import '../ndef_record/raw_record_setting.dart';
 import '../ndef_record/text_record_setting.dart';
 import '../ndef_record/uri_record_setting.dart';
@@ -46,9 +46,25 @@ class _ExperienceState extends State<ExperienceScreen>
         }));
 
     if (response.statusCode == 200) {
-      debugPrint(response.body);
+      Fluttertoast.showToast(
+          msg: response.body,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     } else {
-      debugPrint(response.body);
+      Fluttertoast.showToast(
+          msg: response.body,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     }
   }
 
@@ -64,9 +80,25 @@ class _ExperienceState extends State<ExperienceScreen>
         }));
 
     if (response.statusCode == 200) {
-      debugPrint(response.body);
+      Fluttertoast.showToast(
+          msg: response.body,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     } else {
-      debugPrint(response.body);
+      Fluttertoast.showToast(
+          msg: response.body,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     }
   }
 
@@ -82,9 +114,25 @@ class _ExperienceState extends State<ExperienceScreen>
         }));
 
     if (response.statusCode == 200) {
-      debugPrint(response.body);
+      Fluttertoast.showToast(
+          msg: response.body,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     } else {
-      debugPrint(response.body);
+      Fluttertoast.showToast(
+          msg: response.body,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0
+      );
     }
   }
 
@@ -219,8 +267,8 @@ class _ExperienceState extends State<ExperienceScreen>
                                     content: const Text("Choose The Blockchain Network for Minting the NFT", style:TextStyle(letterSpacing: 1,fontWeight: FontWeight.normal,fontSize: 18,color: Colors.black)),
                                     actions: <Widget>[
                                       TextButton(
-                                        onPressed: () {
-                                          sendBasePostRequest();
+                                        onPressed: () async {
+                                          await sendBasePostRequest();
                                           Navigator.of(ctx).pop();
                                         },
                                         child: Container(
@@ -230,8 +278,8 @@ class _ExperienceState extends State<ExperienceScreen>
                                         ),
                                       ),
                                       TextButton(
-                                        onPressed: () {
-                                          sendzkEVMPostRequest();
+                                        onPressed: () async {
+                                          await sendzkEVMPostRequest();
                                           Navigator.of(ctx).pop();
                                         },
                                         child: Container(
@@ -241,8 +289,8 @@ class _ExperienceState extends State<ExperienceScreen>
                                         ),
                                       ),
                                       TextButton(
-                                        onPressed: () {
-                                          sendScrollPostRequest();
+                                        onPressed: () async {
+                                          await sendScrollPostRequest();
                                           Navigator.of(ctx).pop();
                                         },
                                         child: Container(
