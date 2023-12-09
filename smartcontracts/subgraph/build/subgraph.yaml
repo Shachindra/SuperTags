@@ -1,0 +1,36 @@
+specVersion: 0.0.5
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: SuperTags
+    network: polygon-zkevm-testnet
+    source:
+      address: "0x6F593616C773472ea50a4ba3124cFD6A2eB3a803"
+      abi: SuperTags
+      startBlock: 3406607
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - SuperTagRegistered
+        - SuperTagsAssetDestroyed
+        - Transfer
+      abis:
+        - name: SuperTags
+          file: SuperTags/abis/SuperTags.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: SuperTagRegistered(uint256,indexed address,string)
+          handler: handleSuperTagRegistered
+        - event: SuperTagsAssetDestroyed(indexed uint256,address)
+          handler: handleSuperTagsAssetDestroyed
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: SuperTags/SuperTags.wasm

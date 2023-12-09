@@ -2,24 +2,31 @@
 Gateway APIs for Gamifying Phygital Experiences with NFTs and NFC
 
 
-Metadata Schema
+## Metadata Schema
 ```
-"name": "Diwali Bash | FlexableNFT",
-    "description": "NFT for getting access to exclusive events around your city without any delay. Get access with Flexable!",
-    "external_url": "https://flexablenft.com",
-    "image": "ipfs://",
+{
+    "name": "Scallop Cap | Sports Headwear",
+    "description": "Experience the future of athletic gear with our NFC-integrated sportswear, merging cutting-edge technology with fitness to track performance, access personalized training tips, and connect with a community of athletes.!",
+    "superTagId": "04B0A66A5F7080",
+    "external_url": "https://scallopcap.com",
+    "image": "ipfs://bafybeibrw35jzt5xed4sxnrvsirclu2zt3zarbg3fckk7ymp6kz7fynpru",
     "attributes": [
         {
-            "trait_type": "Event",
-            "value": "Diwali Bash"
+            "trait_type": "Product",
+            "value": "Cap"
         },
         {
             "trait_type": "Description",
-            "value": "Get access to the most exclusive Diwali Bash in Town where you get to experience fireworks, music and mouth watering food!"
+            "value": "Experience the future of athletic gear with our NFC-integrated Cap"
         },
         {
-            "trait_type": "Quantity",
-            "value": "1"
+            "trait_type": "Color",
+            "value": "Black"
+        },
+        {
+            "trait_type": "Price",
+            "value": "$10 USD"
         }
     ]
+}
 ```
