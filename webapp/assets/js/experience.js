@@ -183,12 +183,9 @@ var requestOptions = {
   redirect: 'follow'
 };
 
-fetch("https://49c3-14-195-9-98.ngrok-free.app/api/generate", requestOptions)
+fetch("https://c83d-14-195-9-98.ngrok-free.app/", requestOptions)
   .then(response => response.text())
   .then(result => document.getElementById("result").innerHTML = JSON.parse(result).response)
   .catch(error => console.log('error', error));
-
-  
-    
-    event.preventDefault();
+  event.preventDefault();
 });
